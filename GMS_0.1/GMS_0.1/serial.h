@@ -39,5 +39,5 @@
 
 void SER_Init(void);
 void SER_Write(char c[]);
-
+char SER_Read_Char(void);
 #endif /* SERIAL_H */

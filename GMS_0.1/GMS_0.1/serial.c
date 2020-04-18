@@ -29,6 +29,7 @@
 #define SERIAL_BAUD 9600
 #define BRC ((F_CPU/16/SERIAL_BAUD) - 1)
 #define TX_BUFFER_SIZE 128
+#define RX_BUFFER_SIZE 128
 
 /*
  ******************************************************************************
@@ -48,9 +49,13 @@
  ******************************************************************************
  */
 
-static char serial_buffer[TX_BUFFER_SIZE];
-static uint8_t serial_read_pos = 0;
+static char tx_serial_buffer[TX_BUFFER_SIZE];
+static uint8_t tx_serial_read_pos = 0;
 static uint8_t serial_write_pos = 0;
+
+static char rx_serial_buffer[RX_BUFFER_SIZE];
+static uint8_t rx_serial_read_pos = 0;
+static uint8_t rx_serial_write_pos = 0;
 
 
 /*
@@ -60,8 +65,6 @@ static uint8_t serial_write_pos = 0;
  */
 
 static void append_serial(char c);
-
-
 
 /*
  ******************************************************************************
@@ -82,8 +85,8 @@ void SER_Init(void)
 	UBRR0H = (BRC >> 8);
 	UBRR0L = BRC;
 		
-	/* Set Up Transmitter */
-	UCSR0B = (1 << TXEN0) | (1 << TXCIE0); 
+	/* Set Up Transmitter adn Rx*/
+	UCSR0B = (1 << TXEN0) | (1 << TXCIE0) | (1 << RXEN0) | (1 << RXCIE0); 
 	UCSR0C = (1 << UCSZ01) | (1 << UCSZ00);
 }
 
@@ -107,6 +110,17 @@ void SER_Write(char c[])
 	}
 }
 
+char SER_Read_Char(void)
+{
+	char ret = "\0";
+	if(rx_serial_read_pos != rx_serial_write_pos)
+	{
+		ret = rx_serial_buffer[rx_serial_read_pos];
+		rx_serial_read_pos++;
+	}
+	return ret;
+}
+
 /*
  ******************************************************************************
  * Local FUNCTIONS
@@ -121,7 +135,7 @@ void SER_Write(char c[])
 ******************************************************************************/
 void append_serial(char c)
 {
-	serial_buffer[serial_write_pos] = c;
+	tx_serial_buffer[serial_write_pos] = c;
 	serial_write_pos++;
 	if(serial_write_pos >= TX_BUFFER_SIZE)
 	{
@@ -139,13 +153,43 @@ void append_serial(char c)
 ******************************************************************************/
 ISR(USART_TX_vect)
 {
-	if(serial_read_pos != serial_write_pos)
+	if(tx_serial_read_pos != serial_write_pos)
 	{
-		UDR0 = serial_buffer[serial_read_pos];
-		serial_read_pos++;
-		if(serial_read_pos >= TX_BUFFER_SIZE)
+		UDR0 = tx_serial_buffer[tx_serial_read_pos];
+		tx_serial_read_pos++;
+		if(tx_serial_read_pos >= TX_BUFFER_SIZE)
 		{
-			serial_read_pos++;
+			tx_serial_read_pos++;
 		}
 	}
 }
+
+/******************************************************************************
+ * Function   : 
+ * Parameters : 
+ * Return     : 
+ * Description: 
+******************************************************************************/
+ISR(USART_RX_vect)
+{
+	rx_serial_buffer[rx_serial_write_pos] = UDR0;
+	rx_serial_write_pos++;
+	
+	if(rx_serial_write_pos >= RX_BUFFER_SIZE)
+	{
+		rx_serial_write_pos = 0;
+	}
+}
+
+char peekChar(void)
+{
+	char ret = "\0";
+	
+	if(rx_serial_read_pos != rx_serial_write_pos)
+	{
+		ret = rx_serial_buffer[rx_serial_read_pos];
+	}
+	
+	return ret;
+}
+

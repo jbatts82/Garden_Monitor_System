@@ -45,19 +45,21 @@
 
 int main(void)
 {
-	
 	LED_Init();
 	LED_PowerOn();
 	SER_Init();
-	
 	
 	sei();
 	
 	while (1)
 	{
-		_delay_ms(500);	
-		LED_Status_Blink();
-		SER_Write("Hi");
+		//_delay_ms(500);	
+		//
+		if(SER_Read_Char() == 'j')
+		{
+			LED_Status_Blink();
+			SER_Write("Hi");
+		}
 	}
 }
 
