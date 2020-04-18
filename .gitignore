@@ -15,3 +15,5 @@ GMS_0.1/GMS_0.1/GMS_0.1.componentinfo.xml
 GMS_0.1/GMS_0.1/GMS_0.1.cproj
 GMS_0.1/GMS_0.1/Debug/led.d
 GMS_0.1/GMS_0.1/Debug/led.o
+*.o
+*.d
