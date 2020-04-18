@@ -8,19 +8,21 @@
 #define F_CPU 16000000UL
 #include <avr/io.h>
 #include <util/delay.h>
+#include "led.h"
 
 int main(void)
 {
 	DDRB |= (1<<DDB0);
 	DDRB |= (1<<DDB1);
 	
+	LED_PowerOn();
+
+	
 	while (1)
 	{
 		PORTB |= (1<<PORTB1);
-		PORTB &= ~ (1<<PORTB0);
-		_delay_ms(1000);
+		_delay_ms(500);	
 		PORTB &= ~ (1<<PORTB1);
-		PORTB |= (1<<PORTB0);
 		_delay_ms(500);	
 	}
 }
