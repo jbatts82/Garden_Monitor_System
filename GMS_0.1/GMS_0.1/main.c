@@ -6,24 +6,22 @@
  */ 
 
 #define F_CPU 16000000UL
+#define SERIAL_BAUD 9600
+#define BRC ((F_CPU/16/SERIAL_BAUD) - 1)
+
 #include <avr/io.h>
 #include <util/delay.h>
 #include "led.h"
 
 int main(void)
 {
-	DDRB |= (1<<DDB0);
-	DDRB |= (1<<DDB1);
-	
+	LED_Init();
 	LED_PowerOn();
 
-	
 	while (1)
 	{
-		PORTB |= (1<<PORTB1);
-		_delay_ms(500);	
-		PORTB &= ~ (1<<PORTB1);
-		_delay_ms(500);	
+		_delay_ms(1000);	
+		LED_Status_Blink();
 	}
 }
 

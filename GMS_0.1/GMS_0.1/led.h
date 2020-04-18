@@ -37,5 +37,9 @@
  ******************************************************************************
  */
 
+void LED_Init(void);
+void LED_PowerOn(void);
+void LED_Status_Blink(void);
+
 
 #endif /* LED_H */
